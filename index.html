@@ -47,19 +47,25 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
 
 body {
   background: var(--black);
   color: var(--white);
   font-family: 'Syne', sans-serif;
   overflow-x: hidden;
-  cursor: none;
+}
+
+@media (hover: none) {
+  body { cursor: auto; }
 }
 
 /* CUSTOM CURSOR */
 .cursor {
-  width: 10px; height: 10px;
+  width: 30px; height: 30px;
   background: var(--yellow);
   border-radius: 50%;
   position: fixed; top: 0; left: 0;
@@ -67,16 +73,6 @@ body {
   z-index: 9999;
   transition: transform 0.1s ease;
   mix-blend-mode: difference;
-}
-.cursor-ring {
-  width: 36px; height: 36px;
-  border: 1px solid var(--yellow);
-  border-radius: 50%;
-  position: fixed; top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9998;
-  transition: transform 0.18s ease, width 0.2s, height 0.2s, opacity 0.2s;
-  opacity: 0.5;
 }
 body:hover .cursor-ring { opacity: 1; }
 
@@ -159,7 +155,6 @@ nav.scrolled {
   background: transparent;
   border: 1px solid var(--yellow);
   color: var(--yellow);
-  cursor: none;
   transition: all 0.3s ease;
 }
 .nav-cta:hover {
@@ -170,7 +165,7 @@ nav.scrolled {
 .hamburger {
   display: none;
   flex-direction: column; gap: 5px;
-  cursor: none; background: none; border: none;
+  background: none; border: none;
   padding: 4px;
 }
 .hamburger span {
@@ -305,7 +300,6 @@ nav.scrolled {
   background: var(--yellow);
   color: var(--black);
   border: none;
-  cursor: none;
   font-weight: 500;
   transition: all 0.3s;
   text-decoration: none;
@@ -326,7 +320,6 @@ nav.scrolled {
   background: transparent;
   color: var(--white);
   border: 1px solid rgba(242,240,232,0.2);
-  cursor: none;
   transition: all 0.3s;
   text-decoration: none;
   display: inline-block;
@@ -457,6 +450,8 @@ section {
 
 .about-image-wrap {
   position: relative;
+  padding-right: 16px;
+  padding-bottom: 16px;
 }
 .about-photo {
   width: 100%;
@@ -465,18 +460,21 @@ section {
   display: block;
   filter: grayscale(100%) contrast(1.1);
   transition: filter 0.4s;
+  position: relative;
+  z-index: 1;
 }
 .about-photo:hover { filter: grayscale(60%) contrast(1.1); }
 
 .about-image-wrap::before {
   content: '';
   position: absolute;
-  top: 16px; left: 16px; right: -16px; bottom: -16px;
+  top: 16px; left: 16px; right: 0; bottom: 0;
   border: 1px solid var(--yellow);
-  z-index: -1;
+  z-index: 0;
+  pointer-events: none;
   transition: all 0.3s;
 }
-.about-image-wrap:hover::before { top: 10px; left: 10px; right: -10px; bottom: -10px; }
+.about-image-wrap:hover::before { top: 10px; left: 10px; }
 
 .about-placeholder {
   width: 100%;
@@ -485,14 +483,32 @@ section {
   display: flex; align-items: center; justify-content: center;
   border: 1px solid var(--border);
   position: relative;
+  z-index: 1;
   overflow: hidden;
 }
 .about-placeholder::after {
-  content: url('image.png');
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 4rem;
-  color: rgba(245,200,0,0.1);
-  letter-spacing: 0.3em;
+  content: '';
+  position: absolute; inset: 0;
+  background: url('image.png') center/cover no-repeat;
+  filter: grayscale(100%) contrast(1.1);
+  transition: filter 0.4s;
+}
+.about-placeholder:hover::after { filter: grayscale(60%) contrast(1.1); }
+
+/* ── MOBILE: limita o tamanho da imagem ── */
+@media (max-width: 768px) {
+  .about-image-wrap {
+    max-width: 280px;
+    margin: 0 auto;
+    padding-right: 12px;
+    padding-bottom: 12px;
+  }
+  .about-image-wrap::before {
+    top: 12px; left: 12px;
+  }
+  .about-placeholder {
+    aspect-ratio: 4/5;
+  }
 }
 
 .about-text .section-desc { margin-bottom: 2rem; }
@@ -742,7 +758,6 @@ section {
 .dot {
   width: 20px; height: 2px;
   background: rgba(242,240,232,0.2);
-  cursor: none;
   transition: all 0.3s;
 }
 .dot.active {
@@ -758,7 +773,6 @@ section {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--white-dim);
-  cursor: none;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.3s;
   font-size: 1rem;
@@ -882,7 +896,7 @@ section {
 
 .contact-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 5rem;
   align-items: start;
 }
@@ -988,7 +1002,6 @@ section {
   background: var(--yellow);
   color: var(--black);
   border: none;
-  cursor: none;
   font-weight: 500;
   transition: all 0.3s;
   align-self: flex-start;
@@ -1076,37 +1089,72 @@ footer {
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ═══════════════════════════════
+   LANG TOGGLE
+═══════════════════════════════ */
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.lang-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  padding: 0.38rem 0.7rem;
+  background: transparent;
+  color: var(--white-dim);
+  border: none;
+  transition: all 0.25s;
+  line-height: 1;
+}
+.lang-btn.active {
+  background: var(--yellow);
+  color: var(--black);
+  font-weight: 500;
+}
+.lang-btn:not(.active):hover { color: var(--yellow); }
+.lang-sep {
+  width: 1px; height: 14px;
+  background: var(--border);
+  flex-shrink: 0;
+  pointer-events: none;
+}
 </style>
 </head>
 
 <body>
 
-<!-- CURSOR -->
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
 <!-- NAVBAR -->
 <nav id="navbar">
-  <div class="nav-logo">BARROS<span>.</span>DEVELOPER</div>
+  <div class="nav-logo">DEV<span>.</span>FOLIO</div>
   <ul class="nav-links">
-    <li><a href="#sobre">Sobre</a></li>
-    <li><a href="#stack">Stack</a></li>
-    <li><a href="#projetos">Projetos</a></li>
-    <li><a href="#experiencia">Experiência</a></li>
-    <li><a href="#contato">Contato</a></li>
+    <li><a href="#sobre" data-pt="Sobre" data-en="About">Sobre</a></li>
+    <li><a href="#stack" data-pt="Stack" data-en="Stack">Stack</a></li>
+    <li><a href="#projetos" data-pt="Projetos" data-en="Projects">Projetos</a></li>
+    <li><a href="#experiencia" data-pt="Experiência" data-en="Experience">Experiência</a></li>
+    <li><a href="#contato" data-pt="Contato" data-en="Contact">Contato</a></li>
   </ul>
-  <a href="#contato" class="nav-cta">Contratar</a>
+  <a href="#contato" class="nav-cta" data-pt="Contratar" data-en="Hire me">Contratar</a>
+  <div class="lang-toggle" id="langToggle">
+    <button class="lang-btn active" id="btnPT" onclick="setLang('pt')">PT</button>
+    <div class="lang-sep"></div>
+    <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+  </div>
   <button class="hamburger" id="hamburger">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#sobre" onclick="closeMobile()">Sobre</a>
-  <a href="#stack" onclick="closeMobile()">Stack</a>
-  <a href="#projetos" onclick="closeMobile()">Projetos</a>
-  <a href="#experiencia" onclick="closeMobile()">Experiência</a>
-  <a href="#contato" onclick="closeMobile()">Contato</a>
+  <a href="#sobre" onclick="closeMobile()" data-pt="Sobre" data-en="About">Sobre</a>
+  <a href="#stack" onclick="closeMobile()" data-pt="Stack" data-en="Stack">Stack</a>
+  <a href="#projetos" onclick="closeMobile()" data-pt="Projetos" data-en="Projects">Projetos</a>
+  <a href="#experiencia" onclick="closeMobile()" data-pt="Experiência" data-en="Experience">Experiência</a>
+  <a href="#contato" onclick="closeMobile()" data-pt="Contato" data-en="Contact">Contato</a>
 </div>
 
 <!-- HERO -->
@@ -1116,34 +1164,36 @@ footer {
   <div class="hero-accent-2"></div>
 
   <div class="hero-content">
-    <div class="hero-tag">Desenvolvedor Full Stack</div>
+    <div class="hero-tag" data-pt="Desenvolvedor Full Stack" data-en="Full Stack Developer">Desenvolvedor Full Stack</div>
     <h1 class="hero-name">
-      <span class="line-white">Olá, eu sou</span>
+      <span class="line-white" data-pt="Olá, eu sou" data-en="Hello, It's me">Olá, eu sou</span>
       <span class="line-yellow">Gabriel Barros</span>
-      <span class="line-outline">Aqui</span>
+      <span class="line-outline" data-pt="Aqui" data-en="Here">Aqui</span>
     </h1>
-    <p class="hero-desc">
+    <p class="hero-desc"
+      data-pt="Construo experiências digitais rápidas, elegantes e funcionais. Transformo ideias complexas em produtos que as pessoas amam usar." 
+      data-en="I build fast, elegant, and functional digital experiences. I transform complex ideas into products that people love to use.">
       Construo experiências digitais rápidas, elegantes e funcionais. Transformo ideias complexas em produtos que as pessoas amam usar.
     </p>
     <div class="hero-btns">
-      <a href="#projetos" class="btn-primary">Ver Projetos</a>
-      <a href="#contato" class="btn-secondary">Falar Comigo</a>
+      <a href="#projetos" class="btn-primary" data-pt="Ver Projetos" data-en="View Projects">Ver Projetos</a>
+      <a href="#contato" class="btn-secondary" data-pt="Falar Comigo" data-en="View Projects">Contact Me</a>
     </div>
   </div>
 
   <div class="hero-scroll">
     <div class="scroll-line"></div>
-    <span>Scroll para explorar</span>
+    <span data-pt="Scroll para explorar" data-en="Scroll to explore">Scroll para explorar</span>
   </div>
 
   <div class="hero-stats">
     <div class="stat-item">
       <div class="stat-num">45+</div>
-      <div class="stat-label">Projetos</div>
+      <div class="stat-label" data-pt="Projetos" data-en="Projects">Projetos</div>
     </div>
     <div class="stat-item">
       <div class="stat-num">07</div>
-      <div class="stat-label">Anos de exp.</div>
+      <div class="stat-label" data-pt="Anos de exp." data-en="Years of experience.">Anos de exp.</div>
     </div>
   </div>
 </section>
@@ -1151,57 +1201,136 @@ footer {
 <!-- SOBRE -->
 <section id="sobre">
   <div class="about-grid">
+    
     <div class="about-image-wrap reveal">
       <div class="about-placeholder"></div>
     </div>
+
     <div class="about-text">
-      <div class="section-label" data-num="01">Sobre mim</div>
-      <h2 class="section-title reveal">Quem <em>sou</em> eu</h2>
-      <p class="section-desc reveal reveal-delay-1">
-        Escreva aqui sua história profissional e pessoal. Fale sobre o que te motiva, suas paixões e o que você traz de diferente para os projetos.
+
+      <div 
+        class="section-label" 
+        data-num="01"
+        data-pt="Sobre mim" 
+        data-en="About me">
+        Sobre mim
+      </div>
+
+      <h2 
+        class="section-title reveal" 
+        data-pt="Quem sou eu" 
+        data-en="Who am I">
+        Quem sou eu
+      </h2>
+
+      <p 
+        class="section-desc reveal reveal-delay-1"
+        data-pt="Sou desenvolvedor .NET e professor de programação, apaixonado por tecnologia, lógica e aprendizado contínuo. Gosto de transformar problemas complexos em soluções simples e eficientes, seja desenvolvendo sistemas ou ensinando novos programadores a pensar de forma estruturada. Acredito que tecnologia de verdade nasce da combinação entre conhecimento técnico, curiosidade e disciplina."
+        data-en="I am a .NET developer and programming instructor passionate about technology, logic, and continuous learning. I enjoy turning complex problems into simple and efficient solutions, whether by building systems or teaching new developers how to think in a structured way. I believe real technology is built from the combination of technical knowledge, curiosity, and discipline.">
+        Sou desenvolvedor .NET e professor de programação, apaixonado por tecnologia, lógica e aprendizado contínuo. Gosto de transformar problemas complexos em soluções simples e eficientes, seja desenvolvendo sistemas ou ensinando novos programadores a pensar de forma estruturada. Acredito que tecnologia de verdade nasce da combinação entre conhecimento técnico, curiosidade e disciplina.
       </p>
+
       <div class="about-highlights reveal reveal-delay-2">
+
         <div class="highlight-item">
           <div class="highlight-icon">01</div>
           <div class="highlight-info">
-            <p>Frontend moderno</p>
-            <span>React, Vue, interfaces de alto impacto</span>
+            <p 
+              data-pt="Frontend moderno" 
+              data-en="Modern Frontend">
+              Frontend moderno
+            </p>
+            <span 
+              data-pt="React, Vue, interfaces de alto impacto"
+              data-en="React, Vue, high-impact interfaces">
+              React, Vue, interfaces de alto impacto
+            </span>
           </div>
         </div>
+
         <div class="highlight-item">
           <div class="highlight-icon">02</div>
           <div class="highlight-info">
-            <p>Backend robusto</p>
-            <span>Node, APIs escaláveis e performáticas</span>
+            <p 
+              data-pt="Backend robusto"
+              data-en="Robust Backend">
+              Backend robusto
+            </p>
+            <span 
+              data-pt="Node, APIs escaláveis e performáticas"
+              data-en="Node, scalable and high-performance APIs">
+              Node, APIs escaláveis e performáticas
+            </span>
           </div>
         </div>
+
         <div class="highlight-item">
           <div class="highlight-icon">03</div>
           <div class="highlight-info">
-            <p>Mobile & Cloud</p>
-            <span>Apps nativos e deploys automatizados</span>
+            <p 
+              data-pt="Mobile & Cloud"
+              data-en="Mobile & Cloud">
+              Mobile & Cloud
+            </p>
+            <span 
+              data-pt="Apps nativos e deploys automatizados"
+              data-en="Native apps and automated deployments">
+              Apps nativos e deploys automatizados
+            </span>
           </div>
         </div>
+
       </div>
-      <a href="#contato" class="btn-primary reveal reveal-delay-3">Entre em contato</a>
+
+      <a 
+        href="#contato" 
+        class="btn-primary reveal reveal-delay-3"
+        data-pt="Entre em contato"
+        data-en="Contact me">
+        Entre em contato
+      </a>
+
     </div>
   </div>
 </section>
 
 <!-- STACK -->
 <section id="stack">
-  <div class="section-label reveal" data-num="02">Ferramentas</div>
-  <h2 class="section-title reveal">Meu <em>stack</em></h2>
-  <p class="section-desc reveal reveal-delay-1">
+  
+  <div 
+    class="section-label reveal" 
+    data-num="02"
+    data-pt="Ferramentas"
+    data-en="Tools">
+    Ferramentas
+  </div>
+
+  <h2 
+    class="section-title reveal"
+    data-pt="Meu stack"
+    data-en="My stack">
+    Meu <em>stack</em>
+  </h2>
+
+  <p 
+    class="section-desc reveal reveal-delay-1"
+    data-pt="Tecnologias que utilizo no dia a dia para desenvolver sistemas escaláveis, APIs robustas e aplicações modernas integradas à nuvem."
+    data-en="Technologies I use daily to build scalable systems, robust APIs, and modern cloud-integrated applications.">
     Tecnologias que utilizo no dia a dia para desenvolver sistemas escaláveis, APIs robustas e aplicações modernas integradas à nuvem.
   </p>
 
   <div class="stack-categories reveal reveal-delay-1">
     
+    <!-- FRONTEND -->
     <div class="stack-category">
       <div class="cat-header">
         <div class="cat-icon">FE</div>
-        <span class="cat-title">Frontend</span>
+        <span 
+          class="cat-title"
+          data-pt="Frontend"
+          data-en="Frontend">
+          Frontend
+        </span>
       </div>
       <div class="tech-list">
         <span class="tech-tag">Angular</span>
@@ -1214,10 +1343,16 @@ footer {
       </div>
     </div>
 
+    <!-- BACKEND -->
     <div class="stack-category">
       <div class="cat-header">
         <div class="cat-icon">BE</div>
-        <span class="cat-title">Backend</span>
+        <span 
+          class="cat-title"
+          data-pt="Backend"
+          data-en="Backend">
+          Backend
+        </span>
       </div>
       <div class="tech-list">
         <span class="tech-tag">.NET Core</span>
@@ -1225,27 +1360,54 @@ footer {
         <span class="tech-tag">C#</span>
         <span class="tech-tag">Entity Framework</span>
         <span class="tech-tag">REST APIs</span>
-        <span class="tech-tag">Arquitetura em Camadas</span>
+        <span 
+          class="tech-tag"
+          data-pt="Arquitetura em Camadas"
+          data-en="Layered Architecture">
+          Arquitetura em Camadas
+        </span>
       </div>
     </div>
 
+    <!-- DATABASE -->
     <div class="stack-category">
       <div class="cat-header">
         <div class="cat-icon">DB</div>
-        <span class="cat-title">Banco de Dados</span>
+        <span 
+          class="cat-title"
+          data-pt="Banco de Dados"
+          data-en="Database">
+          Banco de Dados
+        </span>
       </div>
       <div class="tech-list">
         <span class="tech-tag">SQL Server</span>
         <span class="tech-tag">T-SQL</span>
-        <span class="tech-tag">Modelagem Relacional</span>
-        <span class="tech-tag">Procedures & Views</span>
+        <span 
+          class="tech-tag"
+          data-pt="Modelagem Relacional"
+          data-en="Relational Modeling">
+          Modelagem Relacional
+        </span>
+        <span 
+          class="tech-tag"
+          data-pt="Procedures & Views"
+          data-en="Stored Procedures & Views">
+          Procedures & Views
+        </span>
       </div>
     </div>
 
+    <!-- CLOUD -->
     <div class="stack-category">
       <div class="cat-header">
         <div class="cat-icon">CL</div>
-        <span class="cat-title">Cloud & DevOps</span>
+        <span 
+          class="cat-title"
+          data-pt="Cloud & DevOps"
+          data-en="Cloud & DevOps">
+          Cloud & DevOps
+        </span>
       </div>
       <div class="tech-list">
         <span class="tech-tag">Microsoft Azure</span>
@@ -1257,6 +1419,8 @@ footer {
     </div>
 
   </div>
+
+  <!-- SKILL BARS -->
 
   <div class="skill-bars reveal reveal-delay-2">
 
@@ -1302,7 +1466,12 @@ footer {
 
     <div class="skill-bar-item">
       <div class="skill-bar-header">
-        <span class="skill-bar-name">Arquitetura & Boas Práticas</span>
+        <span 
+          class="skill-bar-name"
+          data-pt="Arquitetura & Boas Práticas"
+          data-en="Architecture & Best Practices">
+          Arquitetura & Boas Práticas
+        </span>
         <span class="skill-bar-pct">85%</span>
       </div>
       <div class="skill-bar-track">
@@ -1311,13 +1480,31 @@ footer {
     </div>
 
   </div>
+
 </section>
 
 <!-- PROJETOS CAROUSEL -->
 <section id="projetos">
-  <div class="section-label reveal" data-num="03">Trabalhos</div>
-  <h2 class="section-title reveal">Projetos <em>pessoais</em></h2>
-  <p class="section-desc reveal reveal-delay-1">
+  
+  <div 
+    class="section-label reveal" 
+    data-num="03"
+    data-pt="Trabalhos"
+    data-en="Work">
+    Trabalhos
+  </div>
+
+  <h2 
+    class="section-title reveal"
+    data-pt="Projetos pessoais"
+    data-en="Personal projects">
+    Projetos <em>pessoais</em>
+  </h2>
+
+  <p 
+    class="section-desc reveal reveal-delay-1"
+    data-pt="Alguns dos projetos que construí por paixão, experimentação e aprendizado contínuo."
+    data-en="Some of the projects I built driven by passion, experimentation, and continuous learning.">
     Alguns dos projetos que construí por paixão, experimentação e aprendizado contínuo.
   </p>
 
@@ -1327,26 +1514,40 @@ footer {
       <!-- SLIDE 1 -->
       <div class="carousel-slide">
         <div class="slide-visual">
-          <div class="slide-placeholder">01</div>
-          <div class="slide-badge">Em produção</div>
+          <div class="slide-placeholder" style="background-image: url('projetos/projeto-1.png'); background-size: cover;width: 100%;height: 100%;"></div>
+          <div 
+            class="slide-badge"
+            data-pt="Em produção"
+            data-en="In production">
+            Em produção
+          </div>
         </div>
         <div class="slide-info">
           <div class="slide-num">01</div>
-          <h3 class="slide-title">Nome do Projeto Um</h3>
-          <p class="slide-desc">Descreva aqui o que esse projeto faz, quais problemas ele resolve e o impacto que gerou. Fale dos desafios técnicos e como você os superou.</p>
+
+          <h3 
+            class="slide-title"
+            data-pt="AI-COMMIT GEN"
+            data-en="AI-COMMIT GEN">
+            AI-COMMIT GEN
+          </h3>
+
+          <p 
+            class="slide-desc"
+            data-pt="Aplicação que transforma automaticamente alterações de código em descrições claras e organizadas. Ao inserir um git diff e alguns parâmetros do contexto, a ferramenta analisa as mudanças e gera um texto estruturado pronto para Pull Requests ou comunicação interna em ferramentas como Slack. O objetivo é reduzir o tempo gasto documentando alterações, padronizar a comunicação técnica e facilitar a revisão de código pelas equipes."
+            data-en="An application that automatically turns code changes into clear and structured descriptions. By providing a git diff and some contextual parameters, the tool analyzes the modifications and generates formatted text ready for Pull Requests or internal communication tools like Slack. The goal is to reduce the time spent documenting changes, standardize technical communication, and make code reviews easier for teams.">
+            Aplicação que transforma automaticamente alterações de código em descrições claras e organizadas. Ao inserir um git diff e alguns parâmetros do contexto, a ferramenta analisa as mudanças e gera um texto estruturado pronto para Pull Requests ou comunicação interna em ferramentas como Slack. O objetivo é reduzir o tempo gasto documentando alterações, padronizar a comunicação técnica e facilitar a revisão de código pelas equipes.
+          </p>
+
           <div class="slide-tags">
             <span class="slide-tag">React</span>
-            <span class="slide-tag">Node.js</span>
-            <span class="slide-tag">PostgreSQL</span>
+            <span class="slide-tag">Groq</span>
+            <span class="slide-tag">TypeScript</span>
           </div>
+
           <div class="slide-links">
-            <a href="#" class="slide-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            <a href="https://github.com/Yesod-star/ai-commit-gen" class="slide-link">
               GitHub
-            </a>
-            <a href="#" class="slide-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Demo
             </a>
           </div>
         </div>
@@ -1356,24 +1557,42 @@ footer {
       <div class="carousel-slide">
         <div class="slide-visual">
           <div class="slide-placeholder">02</div>
-          <div class="slide-badge">Open Source</div>
+          <div 
+            class="slide-badge"
+            data-pt="Open Source"
+            data-en="Open Source">
+            Open Source
+          </div>
         </div>
+
         <div class="slide-info">
           <div class="slide-num">02</div>
-          <h3 class="slide-title">Nome do Projeto Dois</h3>
-          <p class="slide-desc">Descreva aqui o que esse projeto faz, quais tecnologias foram utilizadas e por que você o construiu. Mencione resultados concretos se houver.</p>
+
+          <h3 
+            class="slide-title"
+            data-pt="Nome do Projeto Dois"
+            data-en="Project Two Name">
+            Nome do Projeto Dois
+          </h3>
+
+          <p 
+            class="slide-desc"
+            data-pt="Descreva aqui o que esse projeto faz, quais tecnologias foram utilizadas e por que você o construiu. Mencione resultados concretos se houver."
+            data-en="Describe what this project does, which technologies were used, and why you built it. Mention concrete results if applicable.">
+            Descreva aqui o que esse projeto faz, quais tecnologias foram utilizadas e por que você o construiu. Mencione resultados concretos se houver.
+          </p>
+
           <div class="slide-tags">
             <span class="slide-tag">Vue.js</span>
             <span class="slide-tag">Python</span>
             <span class="slide-tag">Docker</span>
           </div>
+
           <div class="slide-links">
             <a href="#" class="slide-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
               GitHub
             </a>
             <a href="#" class="slide-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               Demo
             </a>
           </div>
@@ -1384,31 +1603,49 @@ footer {
       <div class="carousel-slide">
         <div class="slide-visual">
           <div class="slide-placeholder">03</div>
-          <div class="slide-badge">Concluído</div>
+          <div 
+            class="slide-badge"
+            data-pt="Concluído"
+            data-en="Completed">
+            Concluído
+          </div>
         </div>
+
         <div class="slide-info">
           <div class="slide-num">03</div>
-          <h3 class="slide-title">Nome do Projeto Três</h3>
-          <p class="slide-desc">Mais um projeto incrível que você desenvolveu. Descreva a motivação por trás dele e o aprendizado que ele proporcionou no processo.</p>
+
+          <h3 
+            class="slide-title"
+            data-pt="Nome do Projeto Três"
+            data-en="Project Three Name">
+            Nome do Projeto Três
+          </h3>
+
+          <p 
+            class="slide-desc"
+            data-pt="Mais um projeto incrível que você desenvolveu. Descreva a motivação por trás dele e o aprendizado que ele proporcionou no processo."
+            data-en="Another amazing project you developed. Describe the motivation behind it and what you learned throughout the process.">
+            Mais um projeto incrível que você desenvolveu. Descreva a motivação por trás dele e o aprendizado que ele proporcionou no processo.
+          </p>
+
           <div class="slide-tags">
             <span class="slide-tag">Next.js</span>
             <span class="slide-tag">TypeScript</span>
             <span class="slide-tag">AWS</span>
           </div>
+
           <div class="slide-links">
             <a href="#" class="slide-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
               GitHub
             </a>
             <a href="#" class="slide-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               Demo
             </a>
           </div>
         </div>
       </div>
 
-    </div><!-- /carousel-track -->
+    </div>
 
     <div class="carousel-controls">
       <div class="carousel-dots" id="carouselDots">
@@ -1416,19 +1653,38 @@ footer {
         <div class="dot" onclick="goToSlide(1)"></div>
         <div class="dot" onclick="goToSlide(2)"></div>
       </div>
+
       <div class="carousel-arrows">
         <button class="arrow-btn" onclick="prevSlide()">←</button>
         <button class="arrow-btn" onclick="nextSlide()">→</button>
       </div>
     </div>
+
   </div>
 </section>
 
 <!-- EXPERIÊNCIA -->
 <section id="experiencia">
-  <div class="section-label reveal" data-num="04">Carreira</div>
-  <h2 class="section-title reveal">Onde <em>trabalhei</em></h2>
-  <p class="section-desc reveal reveal-delay-1">
+  
+  <div 
+    class="section-label reveal" 
+    data-num="04"
+    data-pt="Carreira"
+    data-en="Career">
+    Carreira
+  </div>
+
+  <h2 
+    class="section-title reveal"
+    data-pt="Onde trabalhei"
+    data-en="Where I worked">
+    Onde <em>trabalhei</em>
+  </h2>
+
+  <p 
+    class="section-desc reveal reveal-delay-1"
+    data-pt="Experiência profissional atuando com desenvolvimento de sistemas, e-commerce e soluções para gestão pública."
+    data-en="Professional experience working with system development, e-commerce platforms, and public sector solutions.">
     Experiência profissional atuando com desenvolvimento de sistemas, e-commerce e soluções para gestão pública.
   </p>
 
@@ -1439,10 +1695,25 @@ footer {
       <div class="timeline-dot"></div>
       <div class="timeline-header">
         <span class="timeline-company">Captar Consultoria Pública</span>
-        <span class="timeline-period">2023 — Atual</span>
+        <span 
+          class="timeline-period"
+          data-pt="2023 — Atual"
+          data-en="2023 — Present">
+          2023 — Atual
+        </span>
       </div>
-      <div class="timeline-role">Desenvolvedor Full Stack .NET</div>
-      <p class="timeline-desc">
+
+      <div 
+        class="timeline-role"
+        data-pt="Desenvolvedor Full Stack .NET"
+        data-en=".NET Full Stack Developer">
+        Desenvolvedor Full Stack .NET
+      </div>
+
+      <p 
+        class="timeline-desc"
+        data-pt="Desenvolvimento e manutenção de sistema de assistência social utilizado por prefeituras. Atuação com .NET Core, ASP.NET Core, Entity Framework e SQL Server no backend. Desenvolvimento de interfaces em Angular e Blazor. Implementação de novas funcionalidades, otimização de consultas SQL e melhorias de performance. Participação ativa na modelagem de banco de dados e integrações com sistemas governamentais. Deploy e manutenção em ambientes Azure e AWS."
+        data-en="Development and maintenance of a social assistance system used by city governments. Backend development using .NET Core, ASP.NET Core, Entity Framework, and SQL Server. Frontend interfaces built with Angular and Blazor. Implementation of new features, SQL query optimization, and performance improvements. Active participation in database modeling and integrations with government systems. Deployment and maintenance in Azure and AWS environments.">
         Desenvolvimento e manutenção de sistema de assistência social utilizado por prefeituras.
         Atuação com .NET Core, ASP.NET Core, Entity Framework e SQL Server no backend.
         Desenvolvimento de interfaces em Angular e Blazor.
@@ -1457,10 +1728,25 @@ footer {
       <div class="timeline-dot"></div>
       <div class="timeline-header">
         <span class="timeline-company">SENAI</span>
-        <span class="timeline-period">2022 — Atual</span>
+        <span 
+          class="timeline-period"
+          data-pt="2022 — Atual"
+          data-en="2022 — Present">
+          2022 — Atual
+        </span>
       </div>
-      <div class="timeline-role">Professor de Programação</div>
-      <p class="timeline-desc">
+
+      <div 
+        class="timeline-role"
+        data-pt="Professor de Programação"
+        data-en="Programming Instructor">
+        Professor de Programação
+      </div>
+
+      <p 
+        class="timeline-desc"
+        data-pt="Docente em cursos técnicos de programação e administração. Ensino de lógica de programação, banco de dados, desenvolvimento web e fundamentos de sistemas. Desenvolvimento de projetos práticos com alunos, estimulando raciocínio lógico e boas práticas. Atuação também no desenvolvimento de material didático e organização de avaliações técnicas."
+        data-en="Instructor in technical courses focused on programming and business administration. Teaching programming logic, databases, web development, and system fundamentals. Development of practical projects with students, fostering logical reasoning and best practices. Also responsible for creating educational materials and organizing technical assessments.">
         Docente em cursos técnicos de programação e administração.
         Ensino de lógica de programação, banco de dados, desenvolvimento web e fundamentos de sistemas.
         Desenvolvimento de projetos práticos com alunos, estimulando raciocínio lógico e boas práticas.
@@ -1473,10 +1759,25 @@ footer {
       <div class="timeline-dot"></div>
       <div class="timeline-header">
         <span class="timeline-company">X-CommerceWeb</span>
-        <span class="timeline-period">2021 — 2023</span>
+        <span 
+          class="timeline-period"
+          data-pt="2021 — 2023"
+          data-en="2021 — 2023">
+          2021 — 2023
+        </span>
       </div>
-      <div class="timeline-role">Suporte Técnico & Desenvolvedor PHP</div>
-      <p class="timeline-desc">
+
+      <div 
+        class="timeline-role"
+        data-pt="Suporte Técnico & Desenvolvedor PHP"
+        data-en="Technical Support & PHP Developer">
+        Suporte Técnico & Desenvolvedor PHP
+      </div>
+
+      <p 
+        class="timeline-desc"
+        data-pt="Início da carreira na área de tecnologia atuando com suporte técnico e manutenção de plataformas de e-commerce. Desenvolvimento e customização de lojas virtuais utilizando PHP. Correção de bugs, ajustes de layout e integração com meios de pagamento. Atendimento a clientes e resolução de incidentes técnicos."
+        data-en="Started my career in technology providing technical support and maintaining e-commerce platforms. Development and customization of online stores using PHP. Bug fixing, layout adjustments, and payment gateway integrations. Customer support and resolution of technical incidents.">
         Início da carreira na área de tecnologia atuando com suporte técnico e manutenção de plataformas de e-commerce.
         Desenvolvimento e customização de lojas virtuais utilizando PHP.
         Correção de bugs, ajustes de layout e integração com meios de pagamento.
@@ -1491,20 +1792,43 @@ footer {
 <section id="contato">
   <div class="contact-grid">
     <div class="contact-left">
-      <div class="section-label reveal" data-num="05">Contato</div>
-      <h2 class="section-title reveal">Vamos <em>conversar</em></h2>
-      <p class="section-desc reveal reveal-delay-1">
+
+      <div 
+        class="section-label reveal" 
+        data-num="05"
+        data-pt="Contato"
+        data-en="Contact">
+        Contato
+      </div>
+
+      <h2 
+        class="section-title reveal"
+        data-pt="Vamos conversar"
+        data-en="Let's talk">
+        Vamos <em>conversar</em>
+      </h2>
+
+      <p 
+        class="section-desc reveal reveal-delay-1"
+        data-pt="Tem um projeto em mente ou quer bater um papo sobre tecnologia? Estou disponível para novos desafios."
+        data-en="Do you have a project in mind or want to talk about technology? I'm available for new challenges.">
         Tem um projeto em mente ou quer bater um papo sobre tecnologia? Estou disponível para novos desafios.
       </p>
 
       <div class="contact-info-list reveal reveal-delay-2">
+
         <a href="mailto:contato@barrosdeveloper.com.br" class="contact-info-item">
           <div class="contact-icon">@</div>
           <div class="contact-detail">
-            <p>E-mail</p>
+            <p 
+              data-pt="E-mail"
+              data-en="Email">
+              E-mail
+            </p>
             <span>contato@barrosdeveloper.com.br</span>
           </div>
         </a>
+
         <a href="https://www.linkedin.com/in/gabriel-barros-de-almeida-908911208/" class="contact-info-item">
           <div class="contact-icon">in</div>
           <div class="contact-detail">
@@ -1512,6 +1836,7 @@ footer {
             <span>/gabriel-barros-de-almeida-908911208</span>
           </div>
         </a>
+
         <a href="https://github.com/Yesod-star" class="contact-info-item">
           <div class="contact-icon">gh</div>
           <div class="contact-detail">
@@ -1519,6 +1844,7 @@ footer {
             <span>/Yesod-star</span>
           </div>
         </a>
+
       </div>
 
       <div class="social-row reveal reveal-delay-3">
@@ -1526,49 +1852,33 @@ footer {
         <a href="https://github.com/Yesod-star" class="social-btn">GH</a>
         <a href="https://www.instagram.com/gabriel.barros.a/" class="social-btn">IG</a>
       </div>
-    </div>
 
+    </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">BARROS<span>.</span>DEVELOPER</div>
-  <span class="footer-copy">© 2025 — Todos os direitos reservados</span>
-  <a href="#hero" class="footer-back">Voltar ao topo ↑</a>
+
+  <span 
+    class="footer-copy"
+    data-pt="© 2025 — Todos os direitos reservados"
+    data-en="© 2025 — All rights reserved">
+    © 2025 — Todos os direitos reservados
+  </span>
+
+  <a 
+    href="#hero" 
+    class="footer-back"
+    data-pt="Voltar ao topo ↑"
+    data-en="Back to top ↑">
+    Voltar ao topo ↑
+  </a>
 </footer>
 
-<script>
-// ── CURSOR ───────────────────────────────────
-const cursor = document.getElementById('cursor');
-const cursorRing = document.getElementById('cursorRing');
-let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
 
-document.addEventListener('mousemove', e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  cursor.style.transform = `translate(${mouseX - 5}px, ${mouseY - 5}px)`;
-});
-
-function animateRing() {
-  ringX += (mouseX - ringX - 18) * 0.1;
-  ringY += (mouseY - ringY - 18) * 0.1;
-  cursorRing.style.transform = `translate(${ringX}px, ${ringY}px)`;
-  requestAnimationFrame(animateRing);
-}
-animateRing();
-
-document.querySelectorAll('a, button, .tech-tag, .dot, .arrow-btn').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.transform += ' scale(2)';
-    cursorRing.style.width = '50px';
-    cursorRing.style.height = '50px';
-  });
-  el.addEventListener('mouseleave', () => {
-    cursorRing.style.width = '36px';
-    cursorRing.style.height = '36px';
-  });
-});
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 // ── NAVBAR SCROLL ────────────────────────────
 window.addEventListener('scroll', () => {
@@ -1661,6 +1971,48 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     const target = document.querySelector(a.getAttribute('href'));
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+});
+
+// ── LANGUAGE TOGGLE ───────────────────────────
+let currentLang = 'pt';
+
+function detectUserLanguage() {
+  const savedLang = localStorage.getItem('siteLang');
+  if (savedLang) return savedLang;
+
+  const browserLang = navigator.language || navigator.userLanguage;
+
+  // If Brazilian Portuguese → PT
+  if (browserLang.toLowerCase().startsWith('pt')) {
+    return 'pt';
+  }
+
+  // Any other language → EN
+  return 'en';
+}
+
+function setLang(lang) {
+  currentLang = lang;
+
+  // Save preference
+  localStorage.setItem('siteLang', lang);
+
+  document.getElementById('btnPT')?.classList.toggle('active', lang === 'pt');
+  document.getElementById('btnEN')?.classList.toggle('active', lang === 'en');
+
+  document.querySelectorAll('[data-pt][data-en]').forEach(el => {
+    const text = lang === 'en' ? el.dataset.en : el.dataset.pt;
+    el.innerHTML = text;
+  });
+
+  // Update <html lang="">
+  document.documentElement.setAttribute('lang', lang === 'pt' ? 'pt-BR' : 'en');
+}
+
+// Run automatically on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const initialLang = detectUserLanguage();
+  setLang(initialLang);
 });
 </script>
 </body>
